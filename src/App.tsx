@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { SideBar } from './components/SideBar';
-import { Content } from './components/Content';
+import { ContentItem } from './components/Content';
 
 import { api } from './services/api';
 
@@ -28,18 +28,24 @@ interface MovieProps {
 }
 
 export function App() {
-  const [selectedGenreId, setSelectedGenreId] = useState(1);
+  const [selectedGenreId, setSelectedGenreId] = useState(1); // id do filme
 
-  const [genres, setGenres] = useState<GenreResponseProps[]>([]);
+  const [genres, setGenres] = useState<GenreResponseProps[]>([]); // id - 1 - name - action - title - ação
 
-  const [movies, setMovies] = useState<MovieProps[]>([]);
-  const [selectedGenre, setSelectedGenre] = useState<GenreResponseProps>({} as GenreResponseProps);
+  const [movies, setMovies] = useState<MovieProps[]>([]); // Pega todos os dados do meu filme pelo genero selecionado
+  const [selectedGenre, setSelectedGenre] = useState<GenreResponseProps>({} as GenreResponseProps); // Retorna os generos pelo id selecionado
 
-  useEffect(() => {
+  // useEffect(() => {
+  //   api.get<GenreResponseProps[]>('genres').then(response => {
+  //     setGenres(response.data);
+  //   });
+  // }, []);
+
+  useMemo(() => {
     api.get<GenreResponseProps[]>('genres').then(response => {
       setGenres(response.data);
     });
-  }, []);
+  }, [])
 
   useEffect(() => {
     api.get<MovieProps[]>(`movies/?Genre_id=${selectedGenreId}`).then(response => {
@@ -51,9 +57,14 @@ export function App() {
     })
   }, [selectedGenreId]);
 
-  function handleClickButton(id: number) {
+
+  const handleClickButton = useCallback((id: number) => {
     setSelectedGenreId(id);
-  }
+  }, [])
+
+  // function handleClickButton(id: number) {
+  //   setSelectedGenreId(id);
+  // }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'row' }}>
@@ -63,7 +74,7 @@ export function App() {
         buttonClickCallback={handleClickButton}
       />
 
-      <Content
+      <ContentItem
         selectedGenre={selectedGenre}
         movies={movies}
       />
